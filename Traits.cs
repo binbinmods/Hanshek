@@ -191,113 +191,38 @@ namespace Hanshek
             }
         }
 
-        // [HarmonyPrefix]
-        // [HarmonyPatch(typeof(Character), "HealAuraCurse")]
-        // public static void HealAuraCursePrefix(ref Character __instance, AuraCurseData AC, ref int __state)
-        // {
-        //     LogInfo($"HealAuraCursePrefix {subclassName}");
-        //     string traitOfInterest = trait4b;
-        //     if (IsLivingHero(__instance) && __instance.HaveTrait(traitOfInterest) && AC == GetAuraCurseData("stealth"))
-        //     {
-        //         __state = Mathf.FloorToInt(__instance.GetAuraCharges("stealth") * 0.25f);
-        //         // __instance.SetAuraTrait(null, "stealth", 1);
-
-        //     }
-
-        // }
-
-        // [HarmonyPostfix]
-        // [HarmonyPatch(typeof(Character), "HealAuraCurse")]
-        // public static void HealAuraCursePostfix(ref Character __instance, AuraCurseData AC, int __state)
-        // {
-        //     LogInfo($"HealAuraCursePrefix {subclassName}");
-        //     string traitOfInterest = trait4b;
-        //     if (IsLivingHero(__instance) && __instance.HaveTrait(traitOfInterest) && AC == GetAuraCurseData("stealth") && __state > 0)
-        //     {
-        //         // __state = __instance.GetAuraCharges("stealth");
-        //         __instance.SetAuraTrait(null, "stealth", __state);
-        //     }
-
-        // }
-
-
-
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharacterItem), nameof(CharacterItem.CalculateDamagePrePostForThisCharacter))]
-        public static void CalculateDamagePrePostForThisCharacterPrefix()
-        {
-            isDamagePreviewActive = true;
-        }
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(CharacterItem), nameof(CharacterItem.CalculateDamagePrePostForThisCharacter))]
-        public static void CalculateDamagePrePostForThisCharacterPostfix()
+        [HarmonyPatch(typeof(EventData), "Init")]
+        public static void InitPostfix(ref EventData __instance, ref EventReplyData[] ___replys)
         {
-            isDamagePreviewActive = false;
+            List<EventReplyData> eventReplyDataList = new List<EventReplyData>();
+            // List<string> stringList = new List<string>();
+            // for (int index = 0; index < ___replys.Length; ++index)
+            // {
+            //     EventReplyData reply = ___replys[index];
+            //     if (reply != null && reply.RequiredClass != null)
+            //         stringList.Add(reply.RequiredClass.Id);
+            // }
+            for (int index = 0; index < ___replys.Length; ++index)
+            {
+                EventReplyData reply = ___replys[index];
+                if (reply != null && reply.RequiredClass.Id == "warlock")
+                {
+                    EventReplyData eventReplyData = reply.ShallowCopy();
+                    eventReplyData.RequiredClass = Globals.Instance.SubClass[subclassName.ToLower()];
+                    eventReplyData.IndexForAnswerTranslation = 175165 + index;
+                    eventReplyData.ReplyText.Replace("Zek", "Hanshek");
+                    eventReplyData.FlRewardText.Replace("Zek", "Hanshek");
+                    eventReplyData.SsRewardText.Replace("Zek", "Hanshek");
+                    eventReplyData.FlcRewardText.Replace("Zek", "Hanshek");
+                    eventReplyData.SscRewardText.Replace("Zek", "Hanshek");
+                    // eventReplyData.ReplyActionText.Replace("Zek","Hanshek");
+                    eventReplyDataList.Add(eventReplyData);
+                }
+
+            }
+            ___replys = eventReplyDataList.ToArray();
         }
-
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MatchManager), nameof(MatchManager.SetDamagePreview))]
-        public static void SetDamagePreviewPrefix()
-        {
-            isDamagePreviewActive = true;
-        }
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MatchManager), nameof(MatchManager.SetDamagePreview))]
-        public static void SetDamagePreviewPostfix()
-        {
-            isDamagePreviewActive = false;
-        }
-
-        // [HarmonyPostfix]
-        // [HarmonyPatch(typeof(Character), nameof(Character.SetEvent))]
-        // public static void SetEventPostfix(
-        //     Enums.EventActivation theEvent,
-        //     Character target = null,
-        //     int auxInt = 0,
-        //     string auxString = "")
-        // {
-        //     if (theEvent == Enums.EventActivation.BeginTurnCardsDealt && AtOManager.Instance.TeamHaveTrait(trait2b))
-        //     {
-        //         string cardToPlay = "tacticianexpectedprophecy";
-        //         PlayCardForFree(cardToPlay);
-        //     }
-
-        // }
-
-
-
-
-
-        // [HarmonyPostfix]
-        // [HarmonyPatch(typeof(CardData), nameof(CardData.SetDescriptionNew))]
-        // public static void SetDescriptionNewPostfix(ref CardData __instance, bool forceDescription = false, Character character = null, bool includeInSearch = true)
-        // {
-        //     // LogInfo("executing SetDescriptionNewPostfix");
-        //     if (__instance == null)
-        //     {
-        //         LogDebug("Null Card");
-        //         return;
-        //     }
-        //     if (!Globals.Instance.CardsDescriptionNormalized.ContainsKey(__instance.Id))
-        //     {
-        //         LogError($"missing card Id {__instance.Id}");
-        //         return;
-        //     }
-
-
-        //     if (__instance.CardName == "Mind Maze")
-        //     {
-        //         StringBuilder stringBuilder1 = new StringBuilder();
-        //         LogDebug($"Current description for {__instance.Id}: {stringBuilder1}");
-        //         string currentDescription = Globals.Instance.CardsDescriptionNormalized[__instance.Id];
-        //         stringBuilder1.Append(currentDescription);
-        //         // stringBuilder1.Replace($"When you apply", $"When you play a Mind Spell\n or apply");
-        //         stringBuilder1.Replace($"Lasts one turn", $"Lasts two turns");
-        //         BinbinNormalizeDescription(ref __instance, stringBuilder1);
-        //     }
-        // }
 
     }
 }
