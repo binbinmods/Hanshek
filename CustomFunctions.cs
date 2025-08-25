@@ -224,7 +224,7 @@ namespace Hanshek
                     CardItem fromTableByIndex = MatchManager.Instance.GetCardFromTableByIndex(cardData.InternalId);
                     fromTableByIndex.PlayDissolveParticle();
                     fromTableByIndex.ShowEnergyModification(-num);
-                    _character.HeroItem.ScrollCombatText(Texts.Instance.GetText("traits_" + traitName), Enums.CombatScrollEffectType.Trait);
+                    _character.HeroItem.ScrollCombatText(traitName, Enums.CombatScrollEffectType.Trait);
                     MatchManager.Instance.CreateLogCardModification(cardData.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
                 }
             }

@@ -72,26 +72,16 @@ namespace Hanshek
 
             if (_trait == trait0)
             {
-                // Gain 1 evade at combat start 
+                // At the start of combat, gain 2 Insulate and 2 Courage.
                 LogDebug($"Handling Trait {traitId}: {traitName}");
-                _character.SetAuraTrait(_character, "evade", 1);
+                _character.SetAuraTrait(_character, "insulate", 2);
+                _character.SetAuraTrait(_character, "courage", 2);
             }
 
 
             else if (_trait == trait2a)
             {
                 // trait2a
-                // Evasion +1. 
-                // Evasion on you stacks and increases All Damage by 1 per charge. 
-                // When you play a Defense card, gain 1 Energy and Draw 1. (2 times/turn)
-
-                if (CanIncrementTraitActivations(traitId) && _castedCard.HasCardType(Enums.CardType.Defense))// && MatchManager.Instance.energyJustWastedByHero > 0)
-                {
-                    LogDebug($"Handling Trait {traitId}: {traitName}");
-                    _character?.ModifyEnergy(1);
-                    DrawCards(1);
-                    IncrementTraitActivations(traitId);
-                }
             }
 
 
@@ -99,25 +89,48 @@ namespace Hanshek
             else if (_trait == trait2b)
             {
                 // trait2b:
-                // Stealth on heroes increases All Damage by an additional 15% per charge and All Resistances by an additional 5% per charge.",
+                // When you play a Spell, add the Curse Spell type to it.
                 LogDebug($"Handling Trait {traitId}: {traitName}");
+                if (_castedCard != null && _castedCard.HasCardType(Enums.CardType.Spell))
+                {
+                    if (!_castedCard.HasCardType(Enums.CardType.Curse_Spell))
+                    {
+                        List<Enums.CardType> currentTypes = [.. _castedCard.CardTypeAux];
+                        currentTypes.Add(Enums.CardType.Curse_Spell);
+                        _castedCard.CardTypeAux = [.. currentTypes];
+                        LogDebug($"Added Curse type to {_castedCard.CardName}");
+                        Traverse.Create(__instance).Field("castedCard").SetValue(_castedCard);
+                    }
+                }
 
             }
 
             else if (_trait == trait4a)
             {
                 // trait 4a;
-                // Evasion on you can't be purged unless specified. 
-                // Stealth grants 25% additional damage per charge.",
-
+                // At the start of your turn, reduce the cost of all Curse Spells by 1 until discarded.
                 LogDebug($"Handling Trait {traitId}: {traitName}");
+                ReduceCardTypeCostUntilDiscarded(Enums.CardType.Curse_Spell, 1, ref _character, ref heroHand, ref cardDataList, traitName);
             }
 
             else if (_trait == trait4b)
             {
                 // trait 4b:
-                // Heroes Only lose 75% stealth charges rounding down when acting in stealth.
+                // Once per combat, when you play the \"Hellfire\" card put a 0 cost copy with Vanish into your deck.
                 LogDebug($"Handling Trait {traitId}: {traitName}");
+                if (_castedCard != null && _castedCard.Id.StartsWith("royalmagehellfire") && _character.HeroData != null && _character.HeroData.HeroSubClass != null && !MatchManager.Instance.ItemExecuteForThisCombat(_character.HeroData.HeroSubClass.Id, traitId, 1, ""))
+                {
+
+                    {
+                        string cardInDictionary = MatchManager.Instance.CreateCardInDictionary(_castedCard.Id);
+                        CardData cardData = MatchManager.Instance.GetCardData(cardInDictionary);
+                        cardData.EnergyReductionToZeroPermanent = true;
+                        MatchManager.Instance.ModifyCardInDictionary(cardInDictionary, cardData);
+                        MatchManager.Instance.GenerateNewCard(1, cardInDictionary, false, Enums.CardPlace.RandomDeck, heroIndex: MatchManager.Instance.GetHeroHeroActive().HeroIndex);
+                        MatchManager.Instance.SetTraitInfoText();
+                        _character.HeroItem.ScrollCombatText(traitName + Functions.TextChargesLeft(MatchManager.Instance.ItemExecutedInThisCombat(MatchManager.Instance.GetHeroHeroActive().SubclassName, traitId), 1), Enums.CombatScrollEffectType.Trait);
+                    }
+                }
             }
 
         }
@@ -156,7 +169,7 @@ namespace Hanshek
             switch (_acId)
             {
                 // trait2a:
-                // Evasion on you stacks and increases All Damage by 1 per charge. 
+                // Burn on enemies reduces Dark resistance by 0.5% per charge.",
 
                 // trait2b:
                 // Stealth on heroes increases All Damage by an additional 15% per charge and All Resistances by an additional 5% per charge.",
@@ -168,30 +181,11 @@ namespace Hanshek
                 // trait 4b:
                 // Heroes Only lose 75% stealth charges rounding down when acting in stealth.
 
-                case "evasion":
+                case "burn":
                     traitOfInterest = trait2a;
-                    if (IfCharacterHas(characterOfInterest, CharacterHas.Trait, traitOfInterest, AppliesTo.ThisHero))
+                    if (IfCharacterHas(characterOfInterest, CharacterHas.Trait, traitOfInterest, AppliesTo.Monsters))
                     {
-                        __result.GainCharges = true;
-                        __result.AuraDamageType = Enums.DamageType.All;
-                        float multiplierAmount = 1.0f;  //characterOfInterest.HaveTrait(trait4a) ? 0.3f : 0.2f;
-                        __result.AuraDamageIncreasedPerStack = multiplierAmount;
-                        // __result.HealDoneTotal = Mathf.RoundToInt(multiplierAmount * characterOfInterest.GetAuraCharges("shield"));
-                    }
-                    traitOfInterest = trait4a;
-                    if (IfCharacterHas(characterOfInterest, CharacterHas.Trait, traitOfInterest, AppliesTo.ThisHero))
-                    {
-                        __result.Removable = false;
-                    }
-                    break;
-                case "stealth":
-                    traitOfInterest = trait2b;
-                    if (IfCharacterHas(characterOfInterest, CharacterHas.Trait, traitOfInterest, AppliesTo.Heroes))
-                    {
-                        __result.ResistModified = Enums.DamageType.All;
-                        __result.ResistModifiedPercentagePerStack += 5;
-                        __result.AuraDamageType = Enums.DamageType.All;
-                        __result.AuraDamageIncreasedPercentPerStack += 15;
+                        __result = AtOManager.Instance.GlobalAuraCurseModifyResist(__result, Enums.DamageType.Shadow, 0, -0.5f);
                     }
                     break;
             }
