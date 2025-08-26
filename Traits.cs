@@ -203,23 +203,32 @@ namespace Hanshek
             //     if (reply != null && reply.RequiredClass != null)
             //         stringList.Add(reply.RequiredClass.Id);
             // }
+            LogDebug($"InitPostfix: Modifying event replies for {__instance?.EventName} for {subclassName}");
+            if (___replys == null || __instance == null)
+            {
+                LogError($"InitPostfix: ___replys or __instance is null, cannot modify event replies for {__instance.EventName}");
+                return;
+            }
             for (int index = 0; index < ___replys.Length; ++index)
             {
                 EventReplyData reply = ___replys[index];
-                if (reply != null && reply.RequiredClass.Id == "warlock")
+                if (reply != null && reply.RequiredClass?.Id == "warlock")
                 {
                     EventReplyData eventReplyData = reply.ShallowCopy();
+                    LogDebug($"Found warlock reply in event {__instance.EventName}, duplicating for {subclassName}");
                     eventReplyData.RequiredClass = Globals.Instance.SubClass[subclassName.ToLower()];
                     eventReplyData.IndexForAnswerTranslation = 175165 + index;
-                    eventReplyData.ReplyText.Replace("Zek", "Hanshek");
-                    eventReplyData.FlRewardText.Replace("Zek", "Hanshek");
-                    eventReplyData.SsRewardText.Replace("Zek", "Hanshek");
-                    eventReplyData.FlcRewardText.Replace("Zek", "Hanshek");
-                    eventReplyData.SscRewardText.Replace("Zek", "Hanshek");
+                    eventReplyData.ReplyText?.Replace("Zek", "Hanshek");
+                    eventReplyData.FlRewardText?.Replace("Zek", "Hanshek");
+                    eventReplyData.SsRewardText?.Replace("Zek", "Hanshek");
+                    eventReplyData.FlcRewardText?.Replace("Zek", "Hanshek");
+                    eventReplyData.SscRewardText?.Replace("Zek", "Hanshek");
                     // eventReplyData.ReplyActionText.Replace("Zek","Hanshek");
-                    eventReplyDataList.Add(eventReplyData);
                 }
-
+                else
+                {
+                    eventReplyDataList.Add(reply);
+                }
             }
             ___replys = eventReplyDataList.ToArray();
         }

@@ -1,15 +1,15 @@
 {
     "BaseSkin": true,
     "PerkLevel": 0,
-    "SkinGO": "skinhenshek",
+    "SkinGO": "skinhanshek",
     "SkinID": "royalmagebase",
     "SkinName": "Default",
     "SkinOrder": 0,
     "SkinSubclass": "royalmage",
     "Sku": "",
-    "SpritePortrait": "henshekPortrait",
-    "SpritePortraitGrande": "henshekPortraitGrande",
-    "SpriteSilueta": "henshekSilueta",
-    "SpriteSiluetaGrande": "henshekSiluetaGrande",
+    "SpritePortrait": "hanshekPortrait",
+    "SpritePortraitGrande": "hanshekPortraitGrande",
+    "SpriteSilueta": "hanshekSilueta",
+    "SpriteSiluetaGrande": "hanshekSiluetaGrande",
     "SteamStat": ""
 }

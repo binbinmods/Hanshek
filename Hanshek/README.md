@@ -1,10 +1,10 @@
-# Hanshek, the Royalmage
+# Hanshek, the Royal Mage
 
-A hero mod, introducing Hanshek, a mage/healer who has been trapped in a mental cage. She goes on a journey to break out but has two very different ways of doing so overcoming the issues in a calm and focused way or forcefully breaking out of the cage through sheer will.
+A hero mod, introducing Hanshek, a pre-corrupted Hanshek who has been falling into dark powers. As such, he specializes in Shadow and Fire damage.
 
-This character was designed by @designer.
+This character was created and designed by @silenus3646 (Silenus).
 
-This currently does not include any events or quests related to Hanshek other than those available to all heroes or all heroes of a specific class.
+This should give Hanshek all events associated with Zek. So, he can corrupt at altars and get into the sewers just like Zek can.
 
 A couple of notes:
 
